@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer class="footer" th:fragment="footer">
+    <div class="container">
+        <div class="footer__inner">
+            <div class="footer__logo">Tech<span style="font-weight:300">Shop</span></div>
+            <div class="footer__copy">© 2025 TechShop. All rights reserved.</div>
+            <div class="footer__links">
+                <a th:href="@{/products}">Products</a>
+                <a th:href="@{/categories}">Categories</a>
+                <a th:href="@{/login}">Sign In</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

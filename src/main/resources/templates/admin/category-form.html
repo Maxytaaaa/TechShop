@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Admin — Category')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar__logo">Admin Panel</div>
+        <nav>
+            <a th:href="@{/admin}" class="admin-nav__link"><span>◈</span> Dashboard</a>
+            <a th:href="@{/admin/products}" class="admin-nav__link"><span>◻</span> Products</a>
+            <a th:href="@{/admin/categories}" class="admin-nav__link active"><span>◈</span> Categories</a>
+            <a th:href="@{/admin/orders}" class="admin-nav__link"><span>◎</span> Orders</a>
+            <a th:href="@{/}" class="admin-nav__link"><span>←</span> Back to Site</a>
+        </nav>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-page-header">
+            <h1 th:text="${category.id != null ? 'Edit Category' : 'New Category'}">Category</h1>
+            <a th:href="@{/admin/categories}" class="btn btn--ghost btn--sm">← Back</a>
+        </div>
+
+        <div style="max-width:480px">
+            <form th:action="${category.id != null ? '/admin/categories/edit/' + category.id : '/admin/categories'}"
+                  method="post" th:object="${category}">
+
+                <div class="form-group">
+                    <label class="form-label">Category Name</label>
+                    <input type="text" th:field="*{name}" class="form-input"
+                           placeholder="Smartphones" required maxlength="100"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea th:field="*{description}" class="form-input"
+                              rows="4" placeholder="Short category description..." maxlength="500"
+                              style="resize:vertical"></textarea>
+                </div>
+
+                <div style="display:flex;gap:1rem;margin-top:.5rem">
+                    <button type="submit" class="btn btn--primary"
+                            th:text="${category.id != null ? 'Save Changes' : 'Create Category'}">Save</button>
+                    <a th:href="@{/admin/categories}" class="btn btn--ghost">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

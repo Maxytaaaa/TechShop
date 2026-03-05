@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('My Orders')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <span>Orders</span>
+        </div>
+
+        <div class="orders-list">
+            <div class="section-header">
+                <div>
+                    <div class="section-header__sub">Account</div>
+                    <h1 style="font-size:1.6rem">My Orders</h1>
+                </div>
+            </div>
+
+            <div th:if="${orders != null and !#lists.isEmpty(orders)}">
+                <a th:each="order : ${orders}"
+                   th:href="@{/orders/{id}(id=${order.id})}"
+                   class="order-card fade-up">
+                    <div class="order-card__id" th:text="'#' + ${order.id}">00</div>
+                    <div>
+                        <div class="order-card__date"
+                             th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">01.01.2025</div>
+                        <div class="order-card__address" th:text="${order.deliveryAddress}">Address</div>
+                    </div>
+                    <div>
+            <span class="badge"
+                  th:classappend="'badge--' + ${#strings.toLowerCase(order.status)}"
+                  th:text="${order.status}">PENDING</span>
+                    </div>
+                    <div class="order-card__price"
+                         th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}">$0</div>
+                </a>
+            </div>
+
+            <div th:if="${orders == null or #lists.isEmpty(orders)}" class="empty-state">
+                <div class="empty-state__icon">◻</div>
+                <h2>No orders yet</h2>
+                <p>Place your first order now</p>
+                <a th:href="@{/products}" class="btn btn--primary" style="margin-top:1.5rem">Browse Products</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

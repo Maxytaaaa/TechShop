@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Register')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="auth-page">
+    <div class="auth-box fade-up" style="max-width:480px">
+        <div class="auth-box__logo">Tech<span style="font-weight:300">Shop</span></div>
+        <h1>Create Account</h1>
+        <p class="auth-box__sub">Sign up for a new account</p>
+
+        <div th:if="${error}" class="alert alert--error" th:text="${error}">Error</div>
+
+        <form th:action="@{/register}" method="post" th:object="${registerRequest}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" th:field="*{firstName}" class="form-input" placeholder="John" required/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" th:field="*{lastName}" class="form-input" placeholder="Doe" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" th:field="*{username}" class="form-input" placeholder="john_doe" required/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-input" placeholder="john@example.com" required/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" th:field="*{password}" class="form-input" placeholder="At least 6 characters"
+                       required minlength="6"/>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full">Create Account</button>
+        </form>
+
+        <div class="auth-divider">or</div>
+        <div class="auth-link">
+            Already have an account? <a th:href="@{/login}">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

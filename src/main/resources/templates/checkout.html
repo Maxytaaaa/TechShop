@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Checkout')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <a th:href="@{/basket}">Cart</a>
+            <span class="breadcrumb__sep">/</span>
+            <span>Checkout</span>
+        </div>
+
+        <div class="checkout">
+            <div class="checkout__grid">
+                <div class="checkout__form fade-up">
+                    <h2>Checkout</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Delivery Address</label>
+                        <input type="text" id="deliveryAddress" class="form-input"
+                               placeholder="123 Main St, Apt 5, New York, NY 10001"
+                               required maxlength="260"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem">
+
+                            <label style="display:flex;align-items:center;gap:.75rem;padding:1rem;border:1px solid var(--gray-200);cursor:pointer"
+                                   id="label-cash">
+                                <input type="radio" name="paymentMethod" value="CASH" checked
+                                       onchange="selectPayment('CASH')"
+                                       style="accent-color:var(--black);width:16px;height:16px"/>
+                                <span>
+                                    <strong style="display:block">Cash on Delivery</strong>
+                                    <span style="font-size:.83rem;color:var(--gray-400)">Pay when you receive your order</span>
+                                </span>
+                            </label>
+
+                            <label style="display:flex;align-items:center;gap:.75rem;padding:1rem;border:1px solid var(--gray-200);cursor:pointer"
+                                   id="label-card">
+                                <input type="radio" name="paymentMethod" value="CARD"
+                                       onchange="selectPayment('CARD')"
+                                       style="accent-color:var(--black);width:16px;height:16px"/>
+                                <span>
+                                    <strong style="display:block">Pay by Card</strong>
+                                    <span style="font-size:.83rem;color:var(--gray-400)">Secure online payment via Stripe</span>
+                                </span>
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <!-- Cash form -->
+                    <form th:action="@{/orders/create}" method="post" id="checkout-form-cash">
+                        <input type="hidden" name="deliveryAddress" id="cashDeliveryAddress"/>
+                        <button type="submit" class="btn btn--primary btn--full" id="place-order-btn">
+                            Place Order
+                        </button>
+                    </form>
+
+                    <!-- Card form -->
+                    <form th:action="@{/stripe/create-checkout-session}" method="post" id="checkout-form-card"
+                          style="display:none">
+                        <input type="hidden" name="deliveryAddress" id="cardDeliveryAddress"/>
+                        <button type="submit" class="btn btn--primary btn--full">
+                            Pay by Card
+                        </button>
+                    </form>
+
+                </div>
+
+                <div class="basket-summary fade-up fade-up-2" style="position:sticky;top:84px">
+                    <h3>Your Order</h3>
+                    <p style="font-size:.85rem;color:var(--gray-400);margin-top:-.5rem">
+                        Review your cart before placing the order
+                    </p>
+                    <div style="margin-top:1.5rem">
+                        <a th:href="@{/basket}" class="btn btn--ghost btn--full btn--sm">← Back to Cart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+    function selectPayment(method) {
+        const cashForm = document.getElementById('checkout-form-cash');
+        const cardForm = document.getElementById('checkout-form-card');
+        const labelCash = document.getElementById('label-cash');
+        const labelCard = document.getElementById('label-card');
+
+        if (method === 'CASH') {
+            cashForm.style.display = 'block';
+            cardForm.style.display = 'none';
+            labelCash.style.borderColor = 'var(--black)';
+            labelCard.style.borderColor = 'var(--gray-200)';
+        } else {
+            cashForm.style.display = 'none';
+            cardForm.style.display = 'block';
+            labelCash.style.borderColor = 'var(--gray-200)';
+            labelCard.style.borderColor = 'var(--black)';
+        }
+    }
+
+    function syncAddress() {
+        const address = document.getElementById('deliveryAddress').value;
+        document.getElementById('cashDeliveryAddress').value = address;
+        document.getElementById('cardDeliveryAddress').value = address;
+    }
+
+    document.getElementById('deliveryAddress').addEventListener('input', syncAddress);
+
+    document.getElementById('checkout-form-cash').addEventListener('submit', function (e) {
+        syncAddress();
+        const address = document.getElementById('deliveryAddress').value.trim();
+        if (!address) {
+            e.preventDefault();
+            document.getElementById('deliveryAddress').focus();
+            return;
+        }
+        const btn = document.getElementById('place-order-btn');
+        btn.disabled = true;
+        btn.textContent = 'Placing order...';
+        btn.style.opacity = '0.7';
+    });
+
+    document.getElementById('checkout-form-card').addEventListener('submit', function (e) {
+        syncAddress();
+        const address = document.getElementById('deliveryAddress').value.trim();
+        if (!address) {
+            e.preventDefault();
+            document.getElementById('deliveryAddress').focus();
+        }
+    });
+
+    fetch('/basket', {method: 'GET', credentials: 'same-origin'})
+        .then(res => {
+            if (res.redirected && res.url.includes('/login')) return;
+            return res.text();
+        })
+        .then(html => {
+            if (!html) return;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            if (doc.querySelector('.empty-state')) {
+                window.location.href = '/basket';
+            }
+        })
+        .catch(() => {
+        });
+
+    selectPayment('CASH');
+</script>
+</body>
+</html>

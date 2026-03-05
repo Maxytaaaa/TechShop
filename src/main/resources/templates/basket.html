@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Cart')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <span>Cart</span>
+        </div>
+
+        <!-- EMPTY -->
+        <div th:if="${basket == null or basket.items == null or #sets.isEmpty(basket.items)}" class="empty-state">
+            <div class="empty-state__icon">◻</div>
+            <h2>Your cart is empty</h2>
+            <p>Add products to continue</p>
+            <a th:href="@{/products}" class="btn btn--primary" style="margin-top:1.5rem">Browse Products</a>
+        </div>
+
+        <!-- BASKET CONTENT -->
+        <div th:unless="${basket == null or basket.items == null or #sets.isEmpty(basket.items)}" class="basket-layout">
+
+            <!-- ITEMS -->
+            <div>
+                <div class="section-header">
+                    <h2 style="font-size:1.4rem">Your Cart</h2>
+                    <form th:action="@{/basket/clear}" method="post">
+                        <button type="submit" class="btn btn--ghost btn--sm">Clear all</button>
+                    </form>
+                </div>
+
+                <div th:each="item : ${basket.items}" class="basket-item">
+                    <!-- IMAGE -->
+                    <div class="basket-item__img">
+                        <img th:if="${item.product.imageUrl != null and !item.product.imageUrl.isEmpty()}"
+                             th:src="${item.product.imageUrl}" th:alt="${item.product.name}"/>
+                        <div th:unless="${item.product.imageUrl != null and !item.product.imageUrl.isEmpty()}"
+                             style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);font-size:1.5rem">
+                            ◻
+                        </div>
+                    </div>
+
+                    <!-- INFO -->
+                    <div>
+                        <div class="basket-item__name">
+                            <a th:href="@{/products/{id}(id=${item.product.id})}"
+                               th:text="${item.product.name}">Name</a>
+                        </div>
+                        <div class="basket-item__brand" th:text="${item.product.brand}">Brand</div>
+                        <div class="basket-item__actions">
+                            <!-- UPDATE QTY -->
+                            <form th:action="@{/basket/update}" method="post"
+                                  style="display:flex;align-items:center;gap:0">
+                                <input type="hidden" name="productId" th:value="${item.product.id}"/>
+                                <button type="button" class="qty-btn btn btn--ghost btn--sm"
+                                        th:attr="data-target='#qty-'+${item.id}" data-dir="down">−
+                                </button>
+                                <input type="number" name="quantity" th:id="'qty-'+${item.id}"
+                                       class="qty-input" th:value="${item.quantity}" min="1" style="width:60px"/>
+                                <button type="button" class="qty-btn btn btn--ghost btn--sm"
+                                        th:attr="data-target='#qty-'+${item.id}" data-dir="up">+
+                                </button>
+                                <button type="submit" class="btn btn--ghost btn--sm" style="margin-left:.5rem">Update
+                                </button>
+                            </form>
+                            <!-- REMOVE -->
+                            <form th:action="@{/basket/remove/{id}(id=${item.product.id})}" method="post">
+                                <button type="submit" class="btn btn--danger btn--sm">✕</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- PRICE — використовуємо item.product.price (актуальна ціна товару) -->
+                    <div class="basket-item__price"
+                         th:text="'$' + ${#numbers.formatDecimal(item.product.price * item.quantity, 1, 2)}">$0
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUMMARY — total приходить з бекенду через basketService.calculateTotal() -->
+            <div class="basket-summary fade-up">
+                <h3>Order Summary</h3>
+                <div class="summary-row">
+                    <span>Items</span>
+                    <span th:text="${#sets.size(basket.items)}">0</span>
+                </div>
+                <div class="summary-row summary-row--total">
+                    <span>Total</span>
+                    <span th:text="'$' + ${#numbers.formatDecimal(total, 1, 2)}">$0</span>
+                </div>
+                <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:.75rem">
+                    <a th:href="@{/orders/checkout}" class="btn btn--primary btn--full">Checkout</a>
+                    <a th:href="@{/products}" class="btn btn--ghost btn--full">Continue Shopping</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{fragments/header :: head('Products')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <span>Products</span>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <span class="filter-bar__label">Category</span>
+            <a th:href="@{/products}" class="filter-btn" th:classappend="${keyword == null ? 'active' : ''}">All</a>
+            <a th:each="cat : ${categories}"
+               th:href="@{/products/category/{id}(id=${cat.id})}"
+               class="filter-btn"
+               th:text="${cat.name}">Category</a>
+
+            <form th:action="@{/products/search}" method="get" class="search-form">
+                <input type="text" name="keyword" class="search-input" placeholder="Search products..."
+                       th:value="${keyword}"/>
+                <button type="submit" class="search-btn">→</button>
+            </form>
+        </div>
+
+        <!-- HEADER -->
+        <div class="section-header" style="margin-top:2rem">
+            <div>
+                <div class="section-header__sub" th:if="${keyword != null}">
+                    Results for: <strong th:text="${keyword}"></strong>
+                </div>
+                <h1 style="font-size:1.6rem" th:text="${products != null ? #lists.size(products) + ' products' : '0 products'}">Products</h1>
+            </div>
+        </div>
+
+        <!-- GRID -->
+        <div class="products-grid" th:if="${products != null and !#lists.isEmpty(products)}">
+            <div th:each="product : ${products}" class="product-card">
+                <a th:href="@{/products/{id}(id=${product.id})}">
+                    <div class="product-card__img">
+                        <img th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                             th:src="${product.imageUrl}" th:alt="${product.name}" loading="lazy"/>
+                        <div th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                             class="product-card__img product-card__img--placeholder">◻</div>
+                    </div>
+                    <div class="product-card__body">
+                        <div class="product-card__category" th:text="${product.category?.name}">Category</div>
+                        <div class="product-card__name" th:text="${product.name}">Name</div>
+                        <div class="product-card__brand" th:text="${product.brand}">Brand</div>
+                        <div class="product-card__footer">
+                            <div class="product-card__price" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0</div>
+                            <div class="product-card__stock"
+                                 th:classappend="${product.stockQuantity < 5 ? 'product-card__stock--low' : ''}"
+                                 th:text="${product.stockQuantity > 0 ? 'In stock: ' + product.stockQuantity : 'Out of stock'}">In stock</div>
+                        </div>
+                    </div>
+                </a>
+                <div class="product-card__actions" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/basket/add}" method="post" style="display:flex;gap:.5rem;flex:1">
+                        <input type="hidden" name="productId" th:value="${product.id}"/>
+                        <input type="hidden" name="quantity" value="1"/>
+                        <button type="submit" class="btn btn--primary btn--sm" style="flex:1;color:var(--white)">+ Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${products == null or #lists.isEmpty(products)}" class="empty-state">
+            <div class="empty-state__icon">◻</div>
+            <h2>No products found</h2>
+            <p>Try changing the filter or search query</p>
+            <a th:href="@{/products}" class="btn btn--outline" style="margin-top:1.5rem">Clear filters</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

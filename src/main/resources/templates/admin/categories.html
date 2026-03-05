@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Admin — Categories')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar__logo">Admin Panel</div>
+        <nav>
+            <a th:href="@{/admin}" class="admin-nav__link"><span>◈</span> Dashboard</a>
+            <a th:href="@{/admin/products}" class="admin-nav__link"><span>◻</span> Products</a>
+            <a th:href="@{/admin/categories}" class="admin-nav__link active"><span>◈</span> Categories</a>
+            <a th:href="@{/admin/orders}" class="admin-nav__link"><span>◎</span> Orders</a>
+            <a th:href="@{/}" class="admin-nav__link"><span>←</span> Back to Site</a>
+        </nav>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-page-header">
+            <h1>Categories</h1>
+            <a th:href="@{/admin/categories/new}" class="btn btn--primary btn--sm">+ Add Category</a>
+        </div>
+
+        <table class="admin-table" th:if="${categories != null and !#lists.isEmpty(categories)}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Products</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categories}">
+                <td style="color:var(--gray-400)" th:text="${cat.id}">1</td>
+                <td style="font-weight:600" th:text="${cat.name}">Name</td>
+                <td style="color:var(--gray-400);font-size:.85rem" th:text="${cat.description}">Description</td>
+                <td th:text="${cat.products != null ? #sets.size(cat.products) : 0}">0</td>
+                <td>
+                    <div style="display:flex;gap:.5rem">
+                        <a th:href="@{/admin/categories/edit/{id}(id=${cat.id})}" class="btn btn--ghost btn--sm">Edit</a>
+                        <form th:action="@{/admin/categories/delete/{id}(id=${cat.id})}" method="post">
+                            <button type="submit" class="btn btn--danger btn--sm"
+                                    onclick="return confirm('Delete this category?')">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${categories == null or #lists.isEmpty(categories)}" class="empty-state" style="padding:3rem 0">
+            <h2>No categories</h2>
+            <a th:href="@{/admin/categories/new}" class="btn btn--primary" style="margin-top:1rem">Add First Category</a>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

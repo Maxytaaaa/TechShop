@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Admin — Products')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar__logo">Admin Panel</div>
+        <nav>
+            <a th:href="@{/admin}" class="admin-nav__link"><span>◈</span> Dashboard</a>
+            <a th:href="@{/admin/products}" class="admin-nav__link active"><span>◻</span> Products</a>
+            <a th:href="@{/admin/categories}" class="admin-nav__link"><span>◈</span> Categories</a>
+            <a th:href="@{/admin/orders}" class="admin-nav__link"><span>◎</span> Orders</a>
+            <a th:href="@{/}" class="admin-nav__link"><span>←</span> Back to Site</a>
+        </nav>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-page-header">
+            <h1>Products</h1>
+            <a th:href="@{/admin/products/new}" class="btn btn--primary btn--sm">+ Add Product</a>
+        </div>
+
+        <table class="admin-table" th:if="${products != null and !#lists.isEmpty(products)}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td style="color:var(--gray-400)" th:text="${product.id}">1</td>
+                <td>
+                    <img th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                         th:src="${product.imageUrl}" th:alt="${product.name}" class="admin-table__img"/>
+                    <div th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                         style="width:48px;height:48px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400)">◻</div>
+                </td>
+                <td style="font-weight:500" th:text="${product.name}">Name</td>
+                <td style="color:var(--gray-400)" th:text="${product.brand}">Brand</td>
+                <td th:text="${product.category?.name}">Category</td>
+                <td th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0</td>
+                <td th:text="${product.stockQuantity}"
+                    th:style="${product.stockQuantity < 5 ? 'color:#c0392b;font-weight:600' : ''}">0</td>
+                <td>
+                    <div style="display:flex;gap:.5rem">
+                        <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn--ghost btn--sm">Edit</a>
+                        <form th:action="@{/admin/products/delete/{id}(id=${product.id})}" method="post">
+                            <button type="submit" class="btn btn--danger btn--sm"
+                                    onclick="return confirm('Delete this product?')">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${products == null or #lists.isEmpty(products)}" class="empty-state" style="padding:3rem 0">
+            <h2>No products</h2>
+            <a th:href="@{/admin/products/new}" class="btn btn--primary" style="margin-top:1rem">Add First Product</a>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

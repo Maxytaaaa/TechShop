@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Categories')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <span>Categories</span>
+        </div>
+
+        <div class="section-header" style="margin-top:2rem">
+            <div>
+                <div class="section-header__sub">Overview</div>
+                <h1 style="font-size:1.6rem">All Categories</h1>
+            </div>
+        </div>
+
+        <div class="categories-grid" th:if="${categories != null and !#lists.isEmpty(categories)}">
+            <a th:each="cat : ${categories}"
+               th:href="@{/products/category/{id}(id=${cat.id})}"
+               class="category-card fade-up">
+                <div class="category-card__name" th:text="${cat.name}">Category</div>
+                <div class="category-card__count"
+                     th:text="${cat.products != null ? #lists.size(cat.products) + ' products' : '0 products'}">0 products</div>
+                <div th:if="${cat.description != null}" style="font-size:.82rem;margin-top:.75rem;color:var(--gray-400)"
+                     th:text="${cat.description}"></div>
+            </a>
+        </div>
+
+        <div th:if="${categories == null or #lists.isEmpty(categories)}" class="empty-state">
+            <div class="empty-state__icon">◻</div>
+            <h2>No categories yet</h2>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

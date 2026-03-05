@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{fragments/header :: head(${product.name})}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <a th:href="@{/products}">Products</a>
+            <span class="breadcrumb__sep">/</span>
+            <a th:href="@{/products/category/{id}(id=${product.category?.id})}" th:text="${product.category?.name}">Category</a>
+            <span class="breadcrumb__sep">/</span>
+            <span th:text="${product.name}">Product</span>
+        </div>
+    </div>
+
+    <div class="product-detail">
+        <div class="container">
+            <div class="product-detail__grid">
+
+                <!-- IMAGE -->
+                <div class="product-detail__image">
+                    <img th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                         th:src="${product.imageUrl}" th:alt="${product.name}"/>
+                    <div th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                         class="product-detail__image product-detail__image--placeholder">◻
+                    </div>
+                </div>
+
+                <!-- INFO -->
+                <div class="fade-up">
+                    <div class="product-detail__eyebrow" th:text="${product.category?.name}">Category</div>
+                    <h1 class="product-detail__title" th:text="${product.name}">Product name</h1>
+                    <div class="product-detail__brand" th:text="'Brand: ' + ${product.brand}">Brand</div>
+
+                    <!-- RATING -->
+                    <div style="display:flex;align-items:center;gap:.5rem;margin:.5rem 0">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}"
+                              th:text="${i <= averageRating} ? '★' : '☆'"
+                              style="font-size:1.2rem;color:#f0c040"></span>
+                        <span style="font-size:.85rem;color:var(--gray-400)"
+                              th:text="${#numbers.formatDecimal(averageRating, 1, 1)} + ' (' + ${reviews.size()} + ' reviews)'"></span>
+                    </div>
+
+                    <div class="product-detail__price" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">
+                        $0
+                    </div>
+
+                    <hr class="product-detail__divider"/>
+
+                    <p class="product-detail__desc" th:text="${product.description}">Product description</p>
+
+                    <div class="product-detail__meta">
+                        <div class="product-detail__meta-row">
+                            <span>Brand</span>
+                            <span th:text="${product.brand}">—</span>
+                        </div>
+                        <div class="product-detail__meta-row">
+                            <span>Category</span>
+                            <span th:text="${product.category?.name}">—</span>
+                        </div>
+                        <div class="product-detail__meta-row">
+                            <span>Availability</span>
+                            <span th:text="${product.stockQuantity > 0 ? product.stockQuantity + ' in stock' : 'Out of stock'}"
+                                  th:style="${product.stockQuantity == 0 ? 'color:#c0392b' : ''}">—</span>
+                        </div>
+                    </div>
+
+                    <!-- ADD TO CART -->
+                    <div sec:authorize="isAuthenticated()">
+                        <form th:action="@{/basket/add}" method="post" th:if="${product.stockQuantity > 0}">
+                            <input type="hidden" name="productId" th:value="${product.id}"/>
+                            <div class="add-to-basket">
+                                <div style="display:flex;align-items:center;gap:0">
+                                    <button type="button" class="qty-btn btn btn--ghost btn--sm" data-target="#qty"
+                                            data-dir="down">−
+                                    </button>
+                                    <input type="number" name="quantity" id="qty" class="qty-input" value="1" min="1"
+                                           th:max="${product.stockQuantity}"/>
+                                    <button type="button" class="qty-btn btn btn--ghost btn--sm" data-target="#qty"
+                                            data-dir="up">+
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn--primary">Add to Cart</button>
+                            </div>
+                        </form>
+                        <div th:if="${product.stockQuantity == 0}">
+                            <p style="color:#c0392b;font-size:.9rem">Out of stock</p>
+                        </div>
+                    </div>
+
+                    <div sec:authorize="!isAuthenticated()" style="margin-top:1rem">
+                        <a th:href="@{/login}" class="btn btn--outline">Sign in to purchase</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="container" style="margin-top:3rem;margin-bottom:3rem">
+        <h2 style="font-size:1.3rem;font-weight:600;margin-bottom:1.5rem">Reviews</h2>
+
+        <!-- REVIEW LIST -->
+        <div th:if="${reviews.isEmpty()}" style="color:var(--gray-400);font-size:.9rem;margin-bottom:2rem">
+            No reviews yet. Be the first to leave one!
+        </div>
+
+        <div th:each="review : ${reviews}"
+             style="padding:1.25rem 0;border-bottom:1px solid var(--gray-200)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+                <div style="display:flex;align-items:center;gap:.75rem">
+                    <strong style="font-size:.95rem" th:text="${review.user.firstName + ' ' + review.user.lastName}">User</strong>
+                    <span th:each="i : ${#numbers.sequence(1, 5)}"
+                          th:text="${i <= review.rating} ? '★' : '☆'"
+                          style="font-size:1rem;color:#f0c040"></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem">
+                    <span style="font-size:.8rem;color:var(--gray-400)"
+                          th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</span>
+                    <form th:action="@{/reviews/delete/{id}(id=${review.id})}" method="post"
+                          sec:authorize="hasRole('ADMIN')">
+                        <input type="hidden" name="productId" th:value="${product.id}"/>
+                        <button type="submit" class="btn btn--ghost btn--sm"
+                                style="font-size:.75rem;padding:.2rem .6rem;color:#c0392b"
+                                onclick="return confirm('Delete this review?')">Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <p style="font-size:.9rem;color:var(--gray-600);margin:0" th:text="${review.comment}">Comment</p>
+        </div>
+
+        <!-- ADD REVIEW FORM -->
+        <div sec:authorize="isAuthenticated()" style="margin-top:2rem">
+            <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">Leave a Review</h3>
+            <form th:action="@{/reviews/add}" method="post">
+                <input type="hidden" name="productId" th:value="${product.id}"/>
+
+                <div class="form-group">
+                    <label class="form-label">Rating</label>
+                    <div style="display:flex;gap:.5rem;margin-top:.25rem" id="star-container">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}"
+                              th:data-value="${i}"
+                              style="font-size:1.8rem;cursor:pointer;color:var(--gray-200)"
+                              class="star-btn">★</span>
+                    </div>
+                    <input type="hidden" name="rating" id="rating-input"/>
+                    <p id="rating-error" style="display:none;color:#c0392b;font-size:.83rem;margin-top:.4rem">Please
+                        select a rating before submitting.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Comment</label>
+                    <textarea name="comment" class="form-input" rows="3"
+                              placeholder="Share your experience with this product..."
+                              maxlength="1000" style="resize:vertical"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn--primary">Submit Review</button>
+            </form>
+        </div>
+
+        <div sec:authorize="!isAuthenticated()" style="margin-top:2rem">
+            <a th:href="@{/login}" class="btn btn--outline">Sign in to leave a review</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+    const stars = document.querySelectorAll('.star-btn');
+    const ratingInput = document.getElementById('rating-input');
+
+    stars.forEach(star => {
+        star.addEventListener('mouseover', function () {
+            const val = parseInt(this.dataset.value);
+            stars.forEach((s, i) => s.style.color = i < val ? '#f0c040' : 'var(--gray-200)');
+        });
+
+        star.addEventListener('mouseout', function () {
+            const selected = parseInt(ratingInput.value) || 0;
+            stars.forEach((s, i) => s.style.color = i < selected ? '#f0c040' : 'var(--gray-200)');
+        });
+
+        star.addEventListener('click', function () {
+            const val = parseInt(this.dataset.value);
+            ratingInput.value = val;
+            stars.forEach((s, i) => s.style.color = i < val ? '#f0c040' : 'var(--gray-200)');
+            document.getElementById('rating-error').style.display = 'none';
+        });
+    });
+
+    document.querySelector('form[action*="/reviews/add"]').addEventListener('submit', function (e) {
+        if (!ratingInput.value) {
+            e.preventDefault();
+            document.getElementById('rating-error').style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

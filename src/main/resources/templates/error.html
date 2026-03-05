@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Error')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="empty-state" style="padding: 8rem 0">
+            <div style="font-family:var(--font-display);font-size:6rem;font-weight:700;color:var(--gray-200);line-height:1;margin-bottom:1.5rem"
+                 th:text="${status != null ? status : '500'}">500
+            </div>
+            <h2 th:text="${error != null ? error : 'Something went wrong'}">Something went wrong</h2>
+            <p style="margin-top:.75rem;max-width:400px;margin-left:auto;margin-right:auto"
+               th:text="${message != null ? message : 'An unexpected error occurred. Please try again later.'}">
+                An unexpected error occurred.
+            </p>
+            <div style="margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+                <a th:href="@{/}" class="btn btn--primary">← Back to Home</a>
+                <a th:href="@{/products}" class="btn btn--outline">Browse Products</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

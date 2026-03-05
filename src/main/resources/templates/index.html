@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{fragments/header :: head('Home')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero__content">
+                <div class="hero__eyebrow">New Arrivals 2025</div>
+                <h1>Tech for those who value quality</h1>
+                <p>Wide selection of electronics and appliances from leading brands. Minimal choice — maximum result.</p>
+                <div class="hero__cta fade-up fade-up-2">
+                    <a th:href="@{/products}" class="btn btn--primary">Browse Products</a>
+                    <a th:href="@{/categories}" class="btn btn--outline">Categories</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="section--sm" th:if="${categories != null and !#lists.isEmpty(categories)}">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <div class="section-header__sub">Overview</div>
+                    <h2>Categories</h2>
+                </div>
+                <a th:href="@{/categories}" class="btn btn--ghost btn--sm">All categories →</a>
+            </div>
+            <div class="categories-grid">
+                <a th:each="cat : ${categories}"
+                   th:href="@{/products/category/{id}(id=${cat.id})}"
+                   class="category-card">
+                    <div class="category-card__name" th:text="${cat.name}">Category</div>
+                    <div class="category-card__count"
+                         th:text="${cat.products != null ? #lists.size(cat.products) + ' products' : '0 products'}">0 products</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <div class="section-header__sub">Catalog</div>
+                    <h2>All Products</h2>
+                </div>
+                <a th:href="@{/products}" class="btn btn--ghost btn--sm">View all →</a>
+            </div>
+
+            <div class="products-grid" th:if="${products != null and !#lists.isEmpty(products)}">
+                <div th:each="product : ${products}" class="product-card">
+                    <a th:href="@{/products/{id}(id=${product.id})}">
+                        <div class="product-card__img">
+                            <img th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                                 th:src="${product.imageUrl}" th:alt="${product.name}" loading="lazy"/>
+                            <div th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                                 class="product-card__img product-card__img--placeholder">◻</div>
+                        </div>
+                        <div class="product-card__body">
+                            <div class="product-card__category" th:text="${product.category?.name}">Category</div>
+                            <div class="product-card__name" th:text="${product.name}">Product name</div>
+                            <div class="product-card__brand" th:text="${product.brand}">Brand</div>
+                            <div class="product-card__footer">
+                                <div class="product-card__price" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0</div>
+                                <div class="product-card__stock"
+                                     th:classappend="${product.stockQuantity < 5 ? 'product-card__stock--low' : ''}"
+                                     th:text="${product.stockQuantity > 0 ? 'In stock: ' + product.stockQuantity : 'Out of stock'}">In stock</div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="product-card__actions" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/basket/add}" method="post" style="display:flex;gap:.5rem;flex:1">
+                            <input type="hidden" name="productId" th:value="${product.id}"/>
+                            <input type="hidden" name="quantity" value="1"/>
+                            <button type="submit" class="btn btn--primary btn--sm" style="flex:1;color:var(--white)">+ Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${products == null or #lists.isEmpty(products)}" class="empty-state">
+                <div class="empty-state__icon">◻</div>
+                <h2>No products yet</h2>
+                <p>Products will appear here soon</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

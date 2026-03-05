@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' — TechShop'">TechShop</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+    <!-- JS -->
+    <script th:src="@{/js/main.js}" defer></script>
+</head>
+<body>
+
+<header class="header" th:fragment="header">
+    <div class="header__inner">
+        <a th:href="@{/}" class="logo">Tech<span>Shop</span></a>
+
+        <nav class="nav">
+            <a th:href="@{/}" class="nav__link">Home</a>
+            <a th:href="@{/products}" class="nav__link">Products</a>
+            <a th:href="@{/categories}" class="nav__link">Categories</a>
+            <a th:href="@{/basket}" class="nav__link" sec:authorize="isAuthenticated()">Cart</a>
+            <a th:href="@{/orders}" class="nav__link" sec:authorize="isAuthenticated()">Orders</a>
+            <a th:href="@{/admin}" class="nav__link" sec:authorize="hasRole('ADMIN')">Admin</a>
+            <a th:href="@{/login}" class="nav__link" sec:authorize="!isAuthenticated()">Sign In</a>
+            <a th:href="@{/register}" class="nav__link" sec:authorize="!isAuthenticated()">Register</a>
+
+            <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" style="margin:0">
+                <button type="submit"
+                        class="nav__link"
+                        style="background:none;border:none;cursor:pointer;padding:0">
+                    Sign Out
+                </button>
+            </form>
+        </nav>
+
+        <div class="header__actions">
+            <a th:href="@{/basket}" class="basket-icon" sec:authorize="isAuthenticated()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 01-8 0"/>
+                </svg>
+                Cart
+            </a>
+
+            <button class="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+</body>
+</html>

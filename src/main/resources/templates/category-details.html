@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{fragments/header :: head(${category.name})}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <a th:href="@{/categories}">Categories</a>
+            <span class="breadcrumb__sep">/</span>
+            <span th:text="${category.name}">Category</span>
+        </div>
+
+        <div class="section-header" style="margin-top:2rem">
+            <div>
+                <div class="section-header__sub">Category</div>
+                <h1 style="font-size:1.6rem" th:text="${category.name}">Name</h1>
+                <p th:if="${category.description}" th:text="${category.description}" style="margin-top:.5rem"></p>
+            </div>
+            <a th:href="@{/products/category/{id}(id=${category.id})}" class="btn btn--outline">All products in category →</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

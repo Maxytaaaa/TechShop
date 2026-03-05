@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Order #' + ${order.id})}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <span class="breadcrumb__sep">/</span>
+            <a th:href="@{/orders}">Orders</a>
+            <span class="breadcrumb__sep">/</span>
+            <span th:text="'#' + ${order.id}">Order</span>
+        </div>
+
+        <div class="order-detail">
+            <div class="order-detail__header">
+                <div>
+                    <div style="font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-400);margin-bottom:.5rem">
+                        Order
+                    </div>
+                    <h1 style="font-size:2rem" th:text="'#' + ${order.id}">00</h1>
+                    <div style="font-size:.85rem;color:var(--gray-400);margin-top:.4rem"
+                         th:text="${#temporals.format(order.orderDate, 'dd MMMM yyyy, HH:mm')}">Date</div>
+                </div>
+                <div style="text-align:right">
+          <span class="badge"
+                th:classappend="'badge--' + ${#strings.toLowerCase(order.status)}"
+                th:text="${order.status}">PENDING</span>
+                    <div style="font-size:.85rem;color:var(--gray-400);margin-top:.75rem"
+                         th:text="'Delivery: ' + ${order.deliveryAddress}">Address</div>
+                </div>
+            </div>
+
+            <!-- ITEMS -->
+            <table class="order-items-table">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Brand</th>
+                    <th style="text-align:center">Qty</th>
+                    <th style="text-align:right">Unit Price</th>
+                    <th style="text-align:right">Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${order.orderItems}">
+                    <td>
+                        <a th:href="@{/products/{id}(id=${item.product.id})}"
+                           style="font-weight:500" th:text="${item.product.name}">Product</a>
+                    </td>
+                    <td style="color:var(--gray-400)" th:text="${item.product.brand}">Brand</td>
+                    <td style="text-align:center" th:text="${item.quantity}">1</td>
+                    <td style="text-align:right" th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 2)}">$0</td>
+                    <td style="text-align:right;font-weight:600"
+                        th:text="'$' + ${#numbers.formatDecimal(item.price * item.quantity, 1, 2)}">$0</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="order-detail__footer">
+                <div class="order-detail__total-block">
+                    <div style="font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:.4rem">Order Total</div>
+                    <div style="font-family:var(--font-display);font-size:2rem;font-weight:700"
+                         th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}">$0</div>
+                </div>
+            </div>
+
+            <div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
+                <a th:href="@{/orders}" class="btn btn--ghost">← Back to Orders</a>
+                <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
+                      th:if="${order.status != 'CANCELLED' and order.status != 'DELIVERED'}">
+                    <button type="submit" class="btn btn--danger btn--sm"
+                            onclick="return confirm('Cancel this order?')">Cancel Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

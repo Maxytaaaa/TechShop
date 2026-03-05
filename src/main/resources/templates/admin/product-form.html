@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Admin — Product')}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar__logo">Admin Panel</div>
+        <nav>
+            <a th:href="@{/admin}" class="admin-nav__link"><span>◈</span> Dashboard</a>
+            <a th:href="@{/admin/products}" class="admin-nav__link active"><span>◻</span> Products</a>
+            <a th:href="@{/admin/categories}" class="admin-nav__link"><span>◈</span> Categories</a>
+            <a th:href="@{/admin/orders}" class="admin-nav__link"><span>◎</span> Orders</a>
+            <a th:href="@{/}" class="admin-nav__link"><span>←</span> Back to Site</a>
+        </nav>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-page-header">
+            <h1 th:text="${product.id != null ? 'Edit Product' : 'New Product'}">Product</h1>
+            <a th:href="@{/admin/products}" class="btn btn--ghost btn--sm">← Back</a>
+        </div>
+
+        <div style="max-width:640px">
+            <form th:action="${product.id != null ? '/admin/products/edit/' + product.id : '/admin/products'}"
+                  method="post" th:object="${product}">
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group" style="grid-column:1/-1">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" th:field="*{name}" class="form-input" placeholder="iPhone 15 Pro" required maxlength="200"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <input type="text" th:field="*{brand}" class="form-input" placeholder="Apple" maxlength="100"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select th:field="*{category}" class="form-input form-select" required>
+                            <option value="">Select category</option>
+                            <option th:each="cat : ${categories}"
+                                    th:value="${cat.id}"
+                                    th:text="${cat.name}"
+                                    th:selected="${product.category != null and product.category.id == cat.id}">Category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price ($)</label>
+                        <input type="number" th:field="*{price}" class="form-input" placeholder="999.00"
+                               step="0.01" min="0" required/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stock Quantity</label>
+                        <input type="number" th:field="*{stockQuantity}" class="form-input" placeholder="10"
+                               min="0" required/>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1">
+                        <label class="form-label">Image URL</label>
+                        <input type="url" th:field="*{imageUrl}" class="form-input"
+                               placeholder="https://example.com/image.jpg" maxlength="500"/>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1">
+                        <label class="form-label">Description</label>
+                        <textarea th:field="*{description}" class="form-input"
+                                  rows="5" placeholder="Detailed product description..." maxlength="1000"
+                                  style="resize:vertical"></textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:1rem;margin-top:.5rem">
+                    <button type="submit" class="btn btn--primary"
+                            th:text="${product.id != null ? 'Save Changes' : 'Create Product'}">Save</button>
+                    <a th:href="@{/admin/products}" class="btn btn--ghost">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
