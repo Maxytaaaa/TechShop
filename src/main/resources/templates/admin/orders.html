@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/header :: head('Admin — Orders')}"></head>
 <body>
 
@@ -35,46 +35,84 @@
                 <th>Actions</th>
             </tr>
             </thead>
+
             <tbody>
-            <tr th:each="order : ${orders}">
-                <td style="font-weight:600" th:text="'#' + ${order.id}">1</td>
-                <td th:text="${order.user.username}">user</td>
-                <td style="color:var(--gray-400);font-size:.82rem"
-                    th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">Date
-                </td>
-                <td style="font-size:.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
-                    th:text="${order.deliveryAddress}">Address
-                </td>
-                <td style="font-weight:600" th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}">$0</td>
-                <td>
-                    <span class="badge"
-                          th:classappend="'badge--' + ${#strings.toLowerCase(order.status)}"
-                          th:text="${order.status}">PENDING</span>
-                </td>
-                <td>
-                    <form th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post"
-                          style="display:flex;gap:.5rem;align-items:center">
-                        <select name="status" class="form-select" th:value="${order.status}">
-                            <option value="PENDING" th:selected="${order.status == 'PENDING'}">PENDING</option>
-                            <option value="PROCESSING" th:selected="${order.status == 'PROCESSING'}">PROCESSING</option>
-                            <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">SHIPPED</option>
-                            <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">DELIVERED</option>
-                            <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">CANCELLED</option>
-                        </select>
-                        <button type="submit" class="btn btn--ghost btn--sm">→</button>
-                    </form>
-                </td>
-                <td>
-                    <form th:action="@{/admin/orders/delete/{id}(id=${order.id})}" method="post" style="display:inline">
-                        <button type="submit"
-                                class="btn btn--ghost btn--sm"
-                                style="color:#dc3545"
-                                onclick="return confirm('Delete this order? Cannot be undone!')">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
+
+            <th:block th:each="order : ${orders}">
+
+                <!-- Main order row -->
+                <tr>
+                    <td style="font-weight:600" th:text="'#' + ${order.id}">1</td>
+                    <td th:text="${order.user.username}">user</td>
+                    <td style="color:var(--gray-400);font-size:.82rem"
+                        th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">Date
+                    </td>
+                    <td style="font-size:.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+                        th:text="${order.deliveryAddress}">Address
+                    </td>
+                    <td style="font-weight:600"
+                        th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}">$0
+                    </td>
+
+                    <td>
+                        <span class="badge"
+                              th:classappend="'badge--' + ${#strings.toLowerCase(order.status)}"
+                              th:text="${order.status}">PENDING</span>
+                    </td>
+
+                    <td>
+                        <form th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post"
+                              style="display:flex;gap:.5rem;align-items:center">
+                            <select name="status" class="form-select">
+                                <option value="PENDING" th:selected="${order.status == 'PENDING'}">PENDING</option>
+                                <option value="PROCESSING" th:selected="${order.status == 'PROCESSING'}">PROCESSING
+                                </option>
+                                <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">SHIPPED</option>
+                                <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">DELIVERED
+                                </option>
+                                <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">CANCELLED
+                                </option>
+                            </select>
+                            <button type="submit" class="btn btn--ghost btn--sm">→</button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <form th:action="@{/admin/orders/delete/{id}(id=${order.id})}" method="post"
+                              style="display:inline">
+                            <button type="submit"
+                                    class="btn btn--ghost btn--sm"
+                                    style="color:#dc3545"
+                                    onclick="return confirm('Delete this order? Cannot be undone!')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                <!-- Items row (what user ordered) -->
+                <tr>
+                    <td colspan="8" style="background:#fafafa;padding:10px 20px;">
+                        <div style="font-weight:600;margin-bottom:6px;font-size:.85rem;">Items</div>
+
+                        <div th:if="${order.orderItems != null and !#lists.isEmpty(order.orderItems)}">
+                            <div th:each="item : ${order.orderItems}"
+                                 style="font-size:.85rem;color:#555;margin:3px 0;">
+                                • <span th:text="${item.product.name}">Product</span>
+                                x <span th:text="${item.quantity}">1</span>
+                                — $<span th:text="${#numbers.formatDecimal(item.price, 1, 2)}">0</span>
+                            </div>
+                        </div>
+
+                        <div th:if="${order.orderItems == null or #lists.isEmpty(order.orderItems)}"
+                             style="font-size:.85rem;color:#999;">
+                            (No items data)
+                        </div>
+                    </td>
+                </tr>
+
+            </th:block>
+
             </tbody>
         </table>
 
