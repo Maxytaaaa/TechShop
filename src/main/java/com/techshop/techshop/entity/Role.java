@@ -13,11 +13,14 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(unique = true, nullable = false, length = 20)
     private String name;
+
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 }
