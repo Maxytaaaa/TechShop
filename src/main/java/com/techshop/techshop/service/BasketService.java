@@ -9,12 +9,14 @@ import com.techshop.techshop.repository.BasketItemRepository;
 import com.techshop.techshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BasketService {
 
     private final BasketRepository basketRepository;
